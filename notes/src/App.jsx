@@ -15,12 +15,11 @@ export default function App() {
   );
   const [isEditing, setIsEditing] = useState(false);
 
-
-
   useEffect(() => {
     localStorage.setItem('notes', JSON.stringify(notes));
   }, [notes]);
 
+  // If user is currently editing move SideBar of current Editor to top of list
   useEffect(() => {
     if (isEditing) {
       let n = notes.filter(note => note.id !== currentNoteId);
@@ -48,7 +47,6 @@ export default function App() {
           : oldNote;
       })
     );
-    console.log(text);
     setIsEditing(true);
   }
 
