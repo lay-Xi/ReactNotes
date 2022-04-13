@@ -13,22 +13,34 @@ export default function App() {
   const [currentNoteId, setCurrentNoteId] = useState(
     (notes[0] && notes[0].id) || ''
   );
+  const [isEditing, setIsEditing] = useState(false);
+
+
 
   useEffect(() => {
     localStorage.setItem('notes', JSON.stringify(notes));
   }, [notes]);
+
+  useEffect(() => {
+    if (isEditing) {
+      let n = notes.filter(note => note.id !== currentNoteId);
+      let current = notes.find(note =>  note.id === currentNoteId)
+      n.unshift(current);
+      setNotes(n);
+      setIsEditing(false);
+    }
+  }, [isEditing]);
 
   function createNewNote() {
     const newNote = {
       id: nanoid(),
       body: "# Type your markdown note's title here",
     };
-
     setNotes((prevNotes) => [newNote, ...prevNotes]);
     setCurrentNoteId(newNote.id);
   }
 
-  function updateNote(text) {
+  function updateNote(text) {  
     setNotes((oldNotes) =>
       oldNotes.map((oldNote) => {
         return oldNote.id === currentNoteId
@@ -36,6 +48,8 @@ export default function App() {
           : oldNote;
       })
     );
+    console.log(text);
+    setIsEditing(true);
   }
 
   function findCurrentNote() {
