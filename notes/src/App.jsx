@@ -13,24 +13,14 @@ export default function App() {
   const [currentNoteId, setCurrentNoteId] = useState(
     (notes[0] && notes[0].id) || ''
   );
-  const [isEditing, setIsEditing] = useState(false);
+  const [status, setStatus] = useState('idle');
 
   useEffect(() => {
     localStorage.setItem('notes', JSON.stringify(notes));
   }, [notes]);
 
-  // If user is currently editing move SideBar of current Editor to top of list
-  useEffect(() => {
-    if (isEditing) {
-      let n = notes.filter(note => note.id !== currentNoteId);
-      let current = notes.find(note =>  note.id === currentNoteId)
-      n.unshift(current);
-      setNotes(n);
-      setIsEditing(false);
-    }
-  }, [isEditing]);
-
-  function createNewNote() {
+  const createNewNote = () => {
+    setStatus('pending');
     const newNote = {
       id: nanoid(),
       body: "# Type your markdown note's title here",
@@ -39,18 +29,23 @@ export default function App() {
     setCurrentNoteId(newNote.id);
   }
 
-  function updateNote(text) {  
+  const updateNote = (text) => {
+    setStatus('editing');  
     setNotes((oldNotes) =>
       oldNotes.map((oldNote) => {
         return oldNote.id === currentNoteId
-          ? { ...oldNote, body: text }
+          ? { ...oldNote, body: text, lastEdit: Date.now() }
           : oldNote;
       })
     );
-    setIsEditing(true);
   }
 
-  function findCurrentNote() {
+  const openNote = (noteId) => {
+    setStatus('pending');
+    setCurrentNoteId(noteId);
+  }
+
+  const findCurrentNote = () => {
     return (
       notes.find((note) => {
         return note.id === currentNoteId;
@@ -64,12 +59,12 @@ export default function App() {
         <Split sizes={[30, 70]} direction='horizontal' className='split'>
           <Sidebar
             notes={notes}
-            currentNote={findCurrentNote()}
-            setCurrentNoteId={setCurrentNoteId}
+            currentNoteId={currentNoteId}
+            openNote={openNote}
             newNote={createNewNote}
           />
           {currentNoteId && notes.length > 0 && (
-            <Editor currentNote={findCurrentNote()} updateNote={updateNote} />
+            <Editor currentNote={findCurrentNote} updateNote={updateNote} />
           )}
         </Split>
       ) : (
