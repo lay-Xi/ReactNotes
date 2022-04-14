@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import Sidebar from './components/Sidebar';
 import Editor from './components/Editor';
-import { data } from './data';
 import Split from 'react-split';
 import { nanoid } from 'nanoid';
 import 'react-mde/lib/styles/css/react-mde-all.css';
@@ -13,7 +12,21 @@ export default function App() {
   const [currentNoteId, setCurrentNoteId] = useState(
     (notes[0] && notes[0].id) || ''
   );
-  const [status, setStatus] = useState('idle');
+  const [status, setStatus] = useState('loading');
+
+  // useEffect(() => {
+  //   var time = setTimeout(setStatus('idle'), 30);
+  //   const resetTimer = () => {
+  //     setStatus('active');
+  //     clearTimeout(time);
+  //     //300000 is 5 mins
+  //     time = setTimeout(setStatus('idle'), 30);
+  //   }
+  //   window.onload = resetTimer();
+  //   document.onmousemove = resetTimer();
+  //   document.onkeydown = resetTimer();
+  //   document.onmousedown = resetTimer();
+  // }, []);
 
   useEffect(() => {
     localStorage.setItem('notes', JSON.stringify(notes));
@@ -24,9 +37,16 @@ export default function App() {
     const newNote = {
       id: nanoid(),
       body: "# Type your markdown note's title here",
+      lastEdit: Date.now()
     };
     setNotes((prevNotes) => [newNote, ...prevNotes]);
     setCurrentNoteId(newNote.id);
+  }
+
+  const sortNotes = () => {
+    setNotes((notes) => notes.sort((a,b) => {
+      return b.lastEdit - a.lastEdit
+    }))
   }
 
   const updateNote = (text) => {
@@ -38,6 +58,7 @@ export default function App() {
           : oldNote;
       })
     );
+    sortNotes();
   }
 
   const openNote = (noteId) => {
@@ -53,6 +74,10 @@ export default function App() {
     );
   }
 
+  if(status === 'idle'){
+    alert('You are now idle');
+  }
+
   return (
     <main>
       {notes.length > 0 ? (
@@ -64,7 +89,7 @@ export default function App() {
             newNote={createNewNote}
           />
           {currentNoteId && notes.length > 0 && (
-            <Editor currentNote={findCurrentNote} updateNote={updateNote} />
+            <Editor currentNote={findCurrentNote()} updateNote={updateNote} />
           )}
         </Split>
       ) : (
