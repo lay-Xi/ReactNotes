@@ -15,17 +15,17 @@ export default function App() {
   const [status, setStatus] = useState('loading');
 
   // useEffect(() => {
-  //   var time = setTimeout(setStatus('idle'), 30);
   //   const resetTimer = () => {
   //     setStatus('active');
   //     clearTimeout(time);
   //     //300000 is 5 mins
-  //     time = setTimeout(setStatus('idle'), 30);
+  //     time = setIdleSeconds(0);
   //   }
   //   window.onload = resetTimer();
   //   document.onmousemove = resetTimer();
   //   document.onkeydown = resetTimer();
   //   document.onmousedown = resetTimer();
+
   // }, []);
 
   useEffect(() => {
